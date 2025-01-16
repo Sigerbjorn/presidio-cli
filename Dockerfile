@@ -6,6 +6,7 @@ COPY Pipfile* .
 
 RUN pip install --upgrade pip pipenv
 RUN pipenv sync
+RUN pip install pypdf
 
 COPY . .
 

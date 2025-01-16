@@ -10,6 +10,7 @@ pre_commit = ">=2"
 pytest-cov = "*"
 pytest-mock = "*"
 presidio-cli = {editable = true, path = "."}
+pypdf = "*"
 
 [scripts]
 presidio = "python -m presidio_cli"
