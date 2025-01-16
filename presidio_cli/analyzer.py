@@ -1,4 +1,7 @@
 from presidio_analyzer import RecognizerResult
+from presidio_analyzer import AnalyzerEngine
+from pypdf import PdfReader
+from presidio_analyzer import RecognizerResult
 
 
 class Line(object):
@@ -61,10 +64,44 @@ def _analyze(buffer, conf):
     for line in line_generator(buffer):
         if len(line.content) <= 1000000:
             for result in conf.analyzer.analyze(
-                text=line.content, entities=conf.entities, language=conf.language, allow_list=conf.allow_list, score_threshold=conf.threshold
+                text=line.content,
+                entities=conf.entities,
+                language=conf.language,
+                allow_list=conf.allow_list,
+                allow_list_match="regex",
+                score_threshold=conf.threshold,
             ):
                 p = PIIProblem(line.line_no, result, line.content)
                 yield p
+
+
+def analyze_pdf(filename, conf):
+    """Analyzes PDF files specifically."""
+    analyzer = AnalyzerEngine()
+    reader = PdfReader(filename, strict=False)
+
+    for page in reader.pages:
+        text_to_analyze = page.extract_text().replace("\n", " ")
+        analyzer_results = analyzer.analyze(
+            text=text_to_analyze,
+            entities=conf.entities,
+            language=conf.language,
+            allow_list=conf.allow_list,
+            allow_list_match="regex",
+            score_threshold=conf.threshold,
+        )
+
+        for problem in analyzer_results:
+            start = problem.start
+            end = problem.end
+
+            results = {}
+            results["filename"] = filename
+            results["line_number"] = problem.start
+            results["line_content"] = str(text_to_analyze)[start:end]
+
+            p = PIIProblem(problem.start, problem, str(text_to_analyze)[start:end])
+            yield p
 
 
 def analyze(input, conf, filepath=None):

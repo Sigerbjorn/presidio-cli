@@ -2,6 +2,8 @@ import yaml
 import pathspec
 import os
 from presidio_analyzer import AnalyzerEngine
+from pypdf import PdfReader
+from pypdf.errors import PdfReadError
 
 
 class PresidioCLIConfigError(Exception):
@@ -32,6 +34,13 @@ class PresidioCLIConfig(object):
         Detect if file is a not a binary file.
         Based on https://stackoverflow.com/a/7392391
         """
+
+        # First detects if the file is a PDF (a binary, but still worth to be scanned)
+        try:
+            PdfReader(filepath, strict=True)
+            return True
+        except:
+            pass
 
         # Try to read the file as UTF-8.
         # In case some invalid UTF-8 characters are found,

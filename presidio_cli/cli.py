@@ -8,7 +8,7 @@ import json
 
 
 from presidio_cli import SHELL_NAME, APP_DESCRIPTION, APP_VERSION
-from presidio_cli.analyzer import analyze
+from presidio_cli.analyzer import analyze, analyze_pdf
 from presidio_cli.config import PresidioCLIConfig, PresidioCLIConfigError
 
 
@@ -17,9 +17,16 @@ class Format(object):
     def parsable(problem, file):
         problem.recognizer_result["filename"] = file
         problem.recognizer_result["line_number"] = problem.line
-        problem.recognizer_result["line_content"] = problem.line_content
+
+        # Replacing backslashes and quote by spaces.
+        # Removing them causes the char_start and char_end vars to be false, and thus cuts PII chen extracted.
+        problem.recognizer_result["line_content"] = problem.line_content.replace(
+            "\\", " "
+        ).replace('"', " ")
+
         problem.recognizer_result.pop("analysis_explanation")
         problem.recognizer_result.pop("recognition_metadata")
+
         return json.dumps(problem.recognizer_result)
 
     @staticmethod
@@ -200,9 +207,16 @@ def run():
     prob_num = 0
     for file in find_files_recursively(args.files, conf):
         filepath = file[2:] if file.startswith("./") else file
+
         try:
-            with io.open(file, newline="") as f:
-                problems = analyze(f, conf, filepath)
+            # Checking if the file is a pdf
+            # A special function is designed for it.
+            if file.split(".")[-1] == "pdf":
+                problems = analyze_pdf(file, conf)
+
+            else:
+                with io.open(file, newline="") as f:
+                    problems = analyze(f, conf, filepath)
         except EnvironmentError as e:
             print(e, file=sys.stderr)
             sys.exit(1)
