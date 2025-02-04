@@ -5,6 +5,7 @@ import io
 import locale
 import platform
 import json
+from pypdf import EmptyFileError
 
 
 from presidio_cli import SHELL_NAME, APP_DESCRIPTION, APP_VERSION
@@ -220,9 +221,12 @@ def run():
         except EnvironmentError as e:
             print(e, file=sys.stderr)
             sys.exit(1)
-        prob_num = show_problems(
-            problems, file, args_format=args.format, no_warn=args.no_warnings
-        )
+        try:
+            prob_num = show_problems(
+                problems, file, args_format=args.format, no_warn=args.no_warnings
+            )
+        except EmptyFileError:
+            pass
 
     if args.stdin:
         try:

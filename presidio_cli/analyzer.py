@@ -118,7 +118,10 @@ def analyze(input, conf, filepath=None):
         return _analyze(input, conf)
     elif hasattr(input, "read"):  # Python 2's file or Python 3's io.IOBase
         # We need to have everything in memory to parse correctly
-        content = input.read()
+        try:
+            content = input.read()
+        except UnicodeDecodeError:
+            pass
         return _analyze(content, conf)
     else:
         raise TypeError("input should be a string or a stream")
