@@ -7,7 +7,6 @@ import platform
 import json
 import pypdf.errors
 
-
 from presidio_cli import SHELL_NAME, APP_DESCRIPTION, APP_VERSION
 from presidio_cli.analyzer import analyze, analyze_pdf
 from presidio_cli.config import PresidioCLIConfig, PresidioCLIConfigError
@@ -225,7 +224,7 @@ def run():
             prob_num = show_problems(
                 problems, file, args_format=args.format, no_warn=args.no_warnings
             )
-        except EmptyFileError:
+        except pypdf.errors.EmptyFileError:
             pass
 
     if args.stdin:
