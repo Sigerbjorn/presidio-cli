@@ -5,7 +5,7 @@ import io
 import locale
 import platform
 import json
-from pypdf import EmptyFileError
+import pypdf.errors
 
 
 from presidio_cli import SHELL_NAME, APP_DESCRIPTION, APP_VERSION
