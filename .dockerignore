@@ -6,8 +6,6 @@ Dockerfile
 .presidiocli
 LICENSE
 README.md
-setup.cfg
-setup.py
 presidio_cli.egg-info
 .idea
 .vscode
